@@ -567,7 +567,7 @@ async def get_search_tool(search_api: SearchAPI):
     return []
     
 async def get_all_tools(config: RunnableConfig):
-    """Assemble complete toolkit including research, search, and MCP tools.
+    """Assemble complete toolkit including research, search, scientific paper QA, and MCP tools.
     
     Args:
         config: Runtime configuration specifying search API and MCP settings
@@ -575,8 +575,9 @@ async def get_all_tools(config: RunnableConfig):
     Returns:
         List of all configured and available tools for research operations
     """
-    # Start with core research tools
-    tools = [tool(ResearchComplete), think_tool]
+    # Start with core research tools and scientific literature search
+    from open_deep_research.paper_qa_tool import search_scientific_literature
+    tools = [tool(ResearchComplete), think_tool, search_scientific_literature]
     
     # Add configured search tools
     configurable = Configuration.from_runnable_config(config)
@@ -923,3 +924,17 @@ def get_tavily_api_key(config: RunnableConfig):
         return api_keys.get("TAVILY_API_KEY")
     else:
         return os.getenv("TAVILY_API_KEY")
+
+def get_model_config(model_name: str, max_tokens: int, config: RunnableConfig) -> dict:
+    """Get model configuration dictionary including model, max_tokens, api_key, and base_url if applicable."""
+    api_key = get_api_key_for_model(model_name, config)
+    cfg = {
+        "model": model_name,
+        "max_tokens": max_tokens,
+        "api_key": api_key,
+        "tags": ["langsmith:nostream"]
+    }
+    base_url = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE")
+    if base_url and model_name.lower().startswith("openai:"):
+        cfg["base_url"] = base_url
+    return cfg
