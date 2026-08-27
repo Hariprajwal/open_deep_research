@@ -932,6 +932,7 @@ def get_model_config(model_name: str, max_tokens: int, config: RunnableConfig) -
         "model": model_name,
         "max_tokens": max_tokens,
         "api_key": api_key,
+        "streaming": False,  # Disable streaming to avoid SSE parse issues with local proxy
         "tags": ["langsmith:nostream"]
     }
     base_url = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE")

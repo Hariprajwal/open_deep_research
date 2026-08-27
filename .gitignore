@@ -67,3 +67,7 @@ tmp/
 temp/
 
 .langgraph_api
+
+# User Data & Generated Outputs
+output/
+reference_papers/
