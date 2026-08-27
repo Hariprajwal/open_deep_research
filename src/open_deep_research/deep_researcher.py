@@ -42,7 +42,6 @@ from open_deep_research.state import (
 from open_deep_research.utils import (
     anthropic_websearch_called,
     get_all_tools,
-    get_api_key_for_model,
     get_model_config,
     get_model_token_limit,
     get_notes_from_tool_calls,
