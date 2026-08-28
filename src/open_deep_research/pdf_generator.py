@@ -111,27 +111,62 @@ pre {
 }
 """
 
+def _sanitize_unicode_text(text: str) -> str:
+    """Sanitize unsupported Unicode characters into standard ASCII/Helvetica equivalents
+    to prevent ReportLab/xhtml2pdf missing-glyph black square artifacts (■).
+    """
+    replacements = {
+        "\u2011": "-",   # Non-breaking hyphen -> standard ASCII hyphen
+        "\u2010": "-",   # Hyphen -> ASCII hyphen
+        "\u2012": "-",   # Figure dash
+        "\u2013": "-",   # En dash
+        "\u2014": "--",  # Em dash
+        "\u2026": "...", # Ellipsis
+        "\u2018": "'",   # Left single quote
+        "\u2019": "'",   # Right single quote
+        "\u201c": '"',   # Left double quote
+        "\u201d": '"',   # Right double quote
+        "\u202f": " ",   # Narrow non-breaking space
+        "\xa0": " ",     # Non-breaking space
+        "\u2265": ">=",  # Greater than or equal to (≥)
+        "\u2264": "<=",  # Less than or equal to (≤)
+        "\u2261": "==",  # Identical to
+        "\u2260": "!=",  # Not equal to
+        "\u2248": "~=",  # Almost equal to
+        "\u2212": "-",   # Minus sign
+        "\u200b": "",    # Zero-width space
+        "â€": "-",       # UTF-8 misencoding artifact hyphens
+    }
+    for char, repl in replacements.items():
+        text = text.replace(char, repl)
+    return text
+
 def generate_pdf_from_markdown(md_content: str, output_pdf_path: str, title: str = "Deep Research Analysis", author: str = "Research Agent System") -> bool:
     """Converts markdown content into a professional PDF using xhtml2pdf."""
     pdf_path = Path(output_pdf_path)
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
     
     try:
+        # Clean unsupported Unicode characters to prevent black square artifacts
+        clean_md = _sanitize_unicode_text(md_content)
+        clean_title = _sanitize_unicode_text(title)
+        clean_author = _sanitize_unicode_text(author)
+
         # Convert Markdown to HTML
-        html_body = markdown.markdown(md_content, extensions=['tables', 'fenced_code', 'toc'])
+        html_body = markdown.markdown(clean_md, extensions=['tables', 'fenced_code', 'toc'])
         
         full_html = f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>{title}</title>
+<title>{clean_title}</title>
 <style>
 {IEEE_PDF_CSS}
 </style>
 </head>
 <body>
-<div class="paper-title">{title}</div>
-<div class="paper-author">{author}</div>
+<div class="paper-title">{clean_title}</div>
+<div class="paper-author">{clean_author}</div>
 <div class="divider"></div>
 {html_body}
 </body>
