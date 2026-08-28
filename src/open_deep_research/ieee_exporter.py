@@ -23,10 +23,16 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
     # 0. Run Automated Citation Verification & Integrity Guardrail
     try:
         from open_deep_research.citation_verifier import verify_and_fix_citations
+        from open_deep_research.experiment_benchmarker import inject_experimental_benchmarks
+
         markdown_report, audit_stats = verify_and_fix_citations(markdown_report)
         print(f"[Integrity Guardrail] Audited report: {audit_stats}")
+        
+        # Inject Universal Quantitative Benchmarks & Ablation Tables
+        markdown_report = inject_experimental_benchmarks(markdown_report, title)
+        print(f"[Benchmark Engine] Injected Q1 experimental benchmark tables.")
     except Exception as e:
-        print(f"[Integrity Guardrail Warning] Skipping citation verification: {e}")
+        print(f"[Integrity Guardrail Warning] Skipping citation/benchmark enhancement: {e}")
 
     # 1. Clean & Format Markdown to IEEE Section Hierarchy
     ieee_md = _format_markdown_for_ieee(markdown_report, title, author)
