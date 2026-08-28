@@ -20,11 +20,12 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     
-    # 0. Run Automated Citation Verification, Benchmarks & Algorithmic Formalization
+    # 0. Run Automated Citation Verification, Benchmarks, Algorithmic Formalization & Submission Pre-Flight Audit
     try:
         from open_deep_research.citation_verifier import verify_and_fix_citations
         from open_deep_research.experiment_benchmarker import inject_experimental_benchmarks
         from open_deep_research.algorithmic_formalizer import formalize_algorithms_and_math
+        from open_deep_research.submission_verifier import audit_and_enrich_submission_structure
 
         markdown_report, audit_stats = verify_and_fix_citations(markdown_report)
         print(f"[Integrity Guardrail] Audited report: {audit_stats}")
@@ -36,6 +37,10 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
         # Formalize Algorithms & Math Notation (Step 3)
         markdown_report, algo_blocks = formalize_algorithms_and_math(markdown_report, title)
         print(f"[Algorithmic Formalizer] Injected {algo_blocks} formal algorithm blocks & cleaned AI filler text.")
+
+        # Q1 Structural Audit & Pre-Flight Verification (Step 4)
+        markdown_report, preflight_audit = audit_and_enrich_submission_structure(markdown_report, title)
+        print(f"[Submission Verifier] Q1 Readiness Score: {preflight_audit['readiness_score']}/100 ({preflight_audit['q1_status']})")
     except Exception as e:
         print(f"[Integrity Guardrail Warning] Skipping enhancement pipeline: {e}")
 
