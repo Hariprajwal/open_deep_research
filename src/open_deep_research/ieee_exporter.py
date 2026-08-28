@@ -20,6 +20,14 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     
+    # 0. Run Automated Citation Verification & Integrity Guardrail
+    try:
+        from open_deep_research.citation_verifier import verify_and_fix_citations
+        markdown_report, audit_stats = verify_and_fix_citations(markdown_report)
+        print(f"[Integrity Guardrail] Audited report: {audit_stats}")
+    except Exception as e:
+        print(f"[Integrity Guardrail Warning] Skipping citation verification: {e}")
+
     # 1. Clean & Format Markdown to IEEE Section Hierarchy
     ieee_md = _format_markdown_for_ieee(markdown_report, title, author)
     md_file = out_path / "ieee_paper.md"
