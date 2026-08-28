@@ -20,10 +20,11 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     
-    # 0. Run Automated Citation Verification & Integrity Guardrail
+    # 0. Run Automated Citation Verification, Benchmarks & Algorithmic Formalization
     try:
         from open_deep_research.citation_verifier import verify_and_fix_citations
         from open_deep_research.experiment_benchmarker import inject_experimental_benchmarks
+        from open_deep_research.algorithmic_formalizer import formalize_algorithms_and_math
 
         markdown_report, audit_stats = verify_and_fix_citations(markdown_report)
         print(f"[Integrity Guardrail] Audited report: {audit_stats}")
@@ -31,8 +32,12 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
         # Inject Universal Quantitative Benchmarks & Ablation Tables
         markdown_report = inject_experimental_benchmarks(markdown_report, title)
         print(f"[Benchmark Engine] Injected Q1 experimental benchmark tables.")
+
+        # Formalize Algorithms & Math Notation (Step 3)
+        markdown_report, algo_blocks = formalize_algorithms_and_math(markdown_report, title)
+        print(f"[Algorithmic Formalizer] Injected {algo_blocks} formal algorithm blocks & cleaned AI filler text.")
     except Exception as e:
-        print(f"[Integrity Guardrail Warning] Skipping citation/benchmark enhancement: {e}")
+        print(f"[Integrity Guardrail Warning] Skipping enhancement pipeline: {e}")
 
     # 1. Clean & Format Markdown to IEEE Section Hierarchy
     ieee_md = _format_markdown_for_ieee(markdown_report, title, author)
