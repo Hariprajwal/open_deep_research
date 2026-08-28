@@ -157,20 +157,26 @@ def _strip_stacked_headers(text: str, title: str, author: str) -> str:
     already-formatted output, stacking headers even if text was injected between them.
     """
     import re
+    
     # 1. Globally remove any "**Author(s)**: [name]" lines
     text = re.sub(r'\n?\*\*Author\(s\)\*\*:\s*.*?\n', '\n', text, flags=re.IGNORECASE)
     
     # 2. Globally remove standalone "## ABSTRACT" or "Abstract" headers
-    # that don't have text immediately following them.
-    text = re.sub(r'\n?##\s+ABSTRACT\s*\n(?=#|\n?---)', '\n', text, flags=re.IGNORECASE)
+    # that are followed immediately by another header, a divider, or the title
+    text = re.sub(r'\n?##\s+ABSTRACT\s*\n(?=#|\n?---|Intell|\n)', '\n', text, flags=re.IGNORECASE)
+    
+    # Remove horizontal dividers
     text = re.sub(r'\n?---\s*\n', '\n\n', text)
     
-    # 3. Globally remove the title if it appears multiple times
-    # We will strip all instances of "# [Title]" and then re-add exactly one later
+    # 3. Globally remove the title if it appears multiple times (with or without #)
+    # This catches corrupted bare titles injected by previous runs
     escaped_title = re.escape(title)
-    text = re.sub(rf'^#\s+{escaped_title}.*?\n', '', text, flags=re.IGNORECASE | re.MULTILINE)
+    text = re.sub(rf'^#?\s*{escaped_title}.*?\n', '', text, flags=re.IGNORECASE | re.MULTILINE)
     
-    return text.strip()
+    # Clean up excessive newlines left behind
+    text = re.sub(r'\n{3,}', '\n\n', text).strip()
+    
+    return text
 
 
 def _format_markdown_for_ieee(text: str, title: str, author: str) -> str:
