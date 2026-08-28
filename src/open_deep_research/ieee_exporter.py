@@ -154,22 +154,23 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
 def _strip_stacked_headers(text: str, title: str, author: str) -> str:
     """Removes ALL previously prepended headers from the document.
     Handles the case where the pipeline was run multiple times on the
-    already-formatted output, stacking headers like:
-        # Title
-        **Author(s)**: ...
-        ---
-        ## ABSTRACT
-        # Title   <- duplicate
-        ...
+    already-formatted output, stacking headers even if text was injected between them.
     """
     import re
-    # Build a pattern that matches the exact header block we prepend
-    # and strip ALL consecutive occurrences from the top of the document
-    header_pattern = re.compile(
-        r'^(?:#\s+.*?\n\n\*\*Author\(s\)\*\*:.*?\n\n---\n\n##\s+ABSTRACT\n\n)+',
-        re.DOTALL
-    )
-    return header_pattern.sub('', text)
+    # 1. Globally remove any "**Author(s)**: [name]" lines
+    text = re.sub(r'\n?\*\*Author\(s\)\*\*:\s*.*?\n', '\n', text, flags=re.IGNORECASE)
+    
+    # 2. Globally remove standalone "## ABSTRACT" or "Abstract" headers
+    # that don't have text immediately following them.
+    text = re.sub(r'\n?##\s+ABSTRACT\s*\n(?=#|\n?---)', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'\n?---\s*\n', '\n\n', text)
+    
+    # 3. Globally remove the title if it appears multiple times
+    # We will strip all instances of "# [Title]" and then re-add exactly one later
+    escaped_title = re.escape(title)
+    text = re.sub(rf'^#\s+{escaped_title}.*?\n', '', text, flags=re.IGNORECASE | re.MULTILINE)
+    
+    return text.strip()
 
 
 def _format_markdown_for_ieee(text: str, title: str, author: str) -> str:
@@ -178,13 +179,6 @@ def _format_markdown_for_ieee(text: str, title: str, author: str) -> str:
     """
     # Strip ALL previously stacked header blocks from top of document
     clean_text = _strip_stacked_headers(text, title, author)
-
-    # Also strip any stray leading title/author lines in case of partial headers
-    import re
-    clean_text = re.sub(
-        r'^(#\s+.+\n\n\*\*Author\(s\)\*\*:.+\n\n---\n\n##\s+ABSTRACT\n\n)*',
-        '', clean_text, flags=re.DOTALL
-    )
 
     header = (
         f"# {title}\n\n"
