@@ -32,15 +32,26 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output", title: str 
     with open(typ_file, "w", encoding="utf-8") as f:
         f.write(typ_content)
         
-    # 3. Attempt Compilation to PDF via Typst CLI if available
+    # 3. Attempt Compilation to PDF via python typst package if available
     pdf_file = out_path / "ieee_paper.pdf"
     pdf_compiled = False
     
     try:
-        res = subprocess.run(["typst", "compile", str(typ_file), str(pdf_file)], capture_output=True, text=True)
-        if res.returncode == 0:
-            pdf_compiled = True
-    except Exception:
+        import typst
+        # The typst python package expects bytes for output path or similar
+        # typst.compile(str(typ_file), output=str(pdf_file))
+        typst.compile(str(typ_file), output=str(pdf_file))
+        pdf_compiled = True
+    except ImportError:
+        # Fallback to CLI
+        try:
+            res = subprocess.run(["typst", "compile", str(typ_file), str(pdf_file)], capture_output=True, text=True)
+            if res.returncode == 0:
+                pdf_compiled = True
+        except Exception:
+            pdf_compiled = False
+    except Exception as e:
+        print(f"Typst compilation warning (Syntax/Markdown mismatch): {e}")
         pdf_compiled = False
         
     return {
