@@ -151,15 +151,48 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
     }
 
 
+def _strip_stacked_headers(text: str, title: str, author: str) -> str:
+    """Removes ALL previously prepended headers from the document.
+    Handles the case where the pipeline was run multiple times on the
+    already-formatted output, stacking headers like:
+        # Title
+        **Author(s)**: ...
+        ---
+        ## ABSTRACT
+        # Title   <- duplicate
+        ...
+    """
+    import re
+    # Build a pattern that matches the exact header block we prepend
+    # and strip ALL consecutive occurrences from the top of the document
+    header_pattern = re.compile(
+        r'^(?:#\s+.*?\n\n\*\*Author\(s\)\*\*:.*?\n\n---\n\n##\s+ABSTRACT\n\n)+',
+        re.DOTALL
+    )
+    return header_pattern.sub('', text)
+
+
 def _format_markdown_for_ieee(text: str, title: str, author: str) -> str:
-    """Format markdown text into IEEE paper structure."""
+    """Format markdown text into IEEE paper structure.
+    Idempotent: strips any previously stacked headers before prepending one clean copy.
+    """
+    # Strip ALL previously stacked header blocks from top of document
+    clean_text = _strip_stacked_headers(text, title, author)
+
+    # Also strip any stray leading title/author lines in case of partial headers
+    import re
+    clean_text = re.sub(
+        r'^(#\s+.+\n\n\*\*Author\(s\)\*\*:.+\n\n---\n\n##\s+ABSTRACT\n\n)*',
+        '', clean_text, flags=re.DOTALL
+    )
+
     header = (
         f"# {title}\n\n"
         f"**Author(s)**: {author}\n\n"
         f"---\n\n"
         f"## ABSTRACT\n\n"
     )
-    return header + text
+    return header + clean_text.lstrip()
 
 
 def _generate_typst_content(text: str, title: str, author: str) -> str:

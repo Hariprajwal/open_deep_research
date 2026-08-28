@@ -153,6 +153,9 @@ def generate_pdf_from_markdown(md_content: str, output_pdf_path: str, title: str
         clean_author = _sanitize_unicode_text(author)
 
         # Convert Markdown to HTML
+        # NOTE: Do NOT inject separate title/author divs here.
+        # The markdown body already contains the formatted header via _format_markdown_for_ieee.
+        # Injecting again here causes the duplicate title bug seen in the PDF output.
         html_body = markdown.markdown(clean_md, extensions=['tables', 'fenced_code', 'toc'])
         
         full_html = f"""<!DOCTYPE html>
@@ -165,9 +168,6 @@ def generate_pdf_from_markdown(md_content: str, output_pdf_path: str, title: str
 </style>
 </head>
 <body>
-<div class="paper-title">{clean_title}</div>
-<div class="paper-author">{clean_author}</div>
-<div class="divider"></div>
 {html_body}
 </body>
 </html>
