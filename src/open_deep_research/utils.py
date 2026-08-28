@@ -925,14 +925,27 @@ def get_tavily_api_key(config: RunnableConfig):
     else:
         return os.getenv("TAVILY_API_KEY")
 
+# Global counter for API key rotation across multiple model calls
+_api_key_rotation_counter = 0
+
 def get_model_config(model_name: str, max_tokens: int, config: RunnableConfig) -> dict:
-    """Get model configuration dictionary including model, max_tokens, api_key, and base_url if applicable."""
-    api_key = get_api_key_for_model(model_name, config)
+    """Get model configuration with dual-API-key rotation for higher TPM."""
+    global _api_key_rotation_counter
+
+    # Rotate between two Groq keys to double effective tokens-per-minute
+    key1 = os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+    key2 = os.getenv("GROQ_API_KEY_2") or key1
+    _api_key_rotation_counter += 1
+    rotated_key = key1 if (_api_key_rotation_counter % 2 == 0) else key2
+
+    # Prefer the per-model key from config if set, else use rotated key
+    api_key = get_api_key_for_model(model_name, config) or rotated_key
+
     cfg = {
         "model": model_name,
         "max_tokens": max_tokens,
         "api_key": api_key,
-        "streaming": False,  # Disable streaming to avoid SSE parse issues with local proxy
+        "streaming": False,  # Disable streaming to avoid SSE parse issues
         "tags": ["langsmith:nostream"]
     }
     base_url = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE")
