@@ -58,11 +58,29 @@ def verify_and_fix_citations(markdown_report: str) -> Tuple[str, Dict[str, int]]
     processed_md = '\n'.join(new_lines)
     
     # 2. Reframing overclaiming conclusions
+    # These generalized regex rules catch any LLM-generated overclaiming language
+    # regardless of topic domain (AV, AI/ML, Healthcare, Security, etc.)
     overclaiming_rules = [
-        (r'delivers a robust, scalable solution capable of operating safely', 
-         'proposes a robust conceptual architecture for safe autonomous driving'),
-        (r'guarantees absolute safety', 'provides a structured safety framework'),
-        (r'achieves 100% accuracy', 'targets high operational accuracy'),
+        # Unproven safety/robustness claims
+        (r'delivers? a robust[,\w\s]* solution capable of operating safely',
+         'proposes a conceptual architecture aimed at safe operation'),
+        (r'(?:guarantees?|ensures?)\s+(?:absolute\s+)?safety',
+         'targets safety-critical operation through structured design'),
+        (r'(?:is|are)\s+(?:proven|guaranteed)\s+to\s+(?:be\s+)?(?:safe|robust|reliable)',
+         'is designed to be safe, pending empirical validation'),
+        # Unproven accuracy/performance claims
+        (r'achieves?\s+(?:100%|state-of-the-art|optimal)\s+(?:accuracy|performance)',
+         'targets competitive accuracy, to be validated experimentally'),
+        (r'outperforms?\s+all\s+existing\s+(?:methods|approaches|baselines)',
+         'is designed to improve upon existing approaches, pending benchmark evaluation'),
+        # Unproven scalability claims
+        (r'(?:scales?|scalable)\s+to\s+(?:any|all|unlimited)\s+',
+         'is designed to generalize across '),
+        # Unproven real-world deployment claims
+        (r'(?:ready|suitable)\s+for\s+(?:real-world|production)\s+(?:deployment|use)',
+         'designed for future real-world deployment following validation'),
+        (r'capable of operating safely in (?:the )?(?:uncertain|real-world|complex)',
+         'proposed for operation in uncertain and complex environments, pending experimental verification'),
     ]
     
     for pattern, replacement in overclaiming_rules:
