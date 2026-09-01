@@ -125,13 +125,19 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
 
     # FORMAT & EXPORT
     ieee_md = _format_markdown_for_ieee(markdown_report, title, author)
-    md_file = out_path / "ieee_paper.md"
+    
+    import re
+    safe_title = re.sub(r'[^a-zA-Z0-9]+', '_', title.lower()).strip('_')[:50]
+    if not safe_title:
+        safe_title = "ieee_paper"
+        
+    md_file = out_path / f"{safe_title}.md"
     md_file.write_text(ieee_md, encoding="utf-8")
 
-    typ_file = out_path / "ieee_paper.typ"
+    typ_file = out_path / f"{safe_title}.typ"
     typ_file.write_text(_generate_typst_content(markdown_report, title, author), encoding="utf-8")
 
-    pdf_file = out_path / "ieee_paper.pdf"
+    pdf_file = out_path / f"{safe_title}.pdf"
     pdf_compiled = False
     try:
         from open_deep_research.pdf_generator import generate_pdf_from_markdown

@@ -34,12 +34,17 @@ def generate_audit_report(pipeline_results: Dict[str, Any], output_dir: str,
     
     md_content = _build_audit_markdown(pipeline_results, title, author)
     
+    import re
+    safe_title = re.sub(r'[^a-zA-Z0-9]+', '_', title.lower()).strip('_')[:50]
+    if not safe_title:
+        safe_title = "audit_report"
+    
     # Write markdown audit report
-    md_file = out_path / "audit_report.md"
+    md_file = out_path / f"{safe_title}_audit.md"
     md_file.write_text(md_content, encoding="utf-8")
     
     # Attempt PDF generation
-    pdf_file = out_path / "audit_report.pdf"
+    pdf_file = out_path / f"{safe_title}_audit.pdf"
     pdf_generated = False
     try:
         from open_deep_research.pdf_generator import generate_pdf_from_markdown
