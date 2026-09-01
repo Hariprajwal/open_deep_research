@@ -20,9 +20,20 @@ from open_deep_research.pdf_parser import parse_document_to_markdown
 from open_deep_research.ieee_exporter import export_to_ieee
 
 async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "output", author: str = "Research Agent System"):
+    import datetime
+    import re
+    
+    # Create unique output directory based on topic and timestamp
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_topic = re.sub(r'[^a-zA-Z0-9]+', '_', topic.lower()).strip('_')[:30]
+    unique_out_dir = Path(output_dir) / f"{safe_topic}_{timestamp}"
+    unique_out_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = str(unique_out_dir)
+
     print(f"==================================================")
     print(f"[START] Q1 Deep Research Pipeline")
     print(f"[TOPIC] {topic}")
+    print(f"[OUTPUT DIR] {output_dir}")
     print(f"==================================================")
 
     initial_messages = []
@@ -43,14 +54,12 @@ async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "outp
         if ref_content:
             additional_context = f"Additional User Provided References:\n{ref_content}\n\n"
         
-        # Rename the file so it's empty/reset for next run
-        import datetime
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_name = f"reference_{timestamp}.txt"
+        # Backup the reference file to the unique output folder
+        backup_name = unique_out_dir / "reference_backup.txt"
         ref_file.rename(backup_name)
         # Create an empty reference.txt
         Path("reference.txt").touch()
-        print(f"\n[INFO] Processed reference.txt and backed it up as {backup_name}")
+        print(f"\n[INFO] Processed reference.txt and backed it up to {backup_name}")
 
     # 1. Handle Reference Documents / Papers Ingestion
     if target_path and Path(target_path).exists():
