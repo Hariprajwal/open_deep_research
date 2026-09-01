@@ -119,8 +119,10 @@ async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "outp
         print(f"  - IEEE Markdown : {export_result['markdown_file']}")
         print(f"  - Typst Source  : {export_result['typst_file']}")
         if export_result['pdf_compiled']:
-            print(f"  - IEEE PDF      : {export_result['pdf_file']}")
-        else:
+            print(f"  - Standard PDF  : {export_result['pdf_file']}")
+        if export_result.get('conference_pdf_compiled'):
+            print(f"  - IEEE Conf PDF : {export_result['conference_pdf_file']}")
+        if not export_result['pdf_compiled'] and not export_result.get('conference_pdf_compiled'):
             print(f"  - PDF Note      : Install 'typst' to auto-compile PDF from '{export_result['typst_file']}'")
 
     except KeyboardInterrupt:

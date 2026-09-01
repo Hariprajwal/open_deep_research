@@ -137,6 +137,7 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
     typ_file = out_path / f"{safe_title}.typ"
     typ_file.write_text(_generate_typst_content(markdown_report, title, author), encoding="utf-8")
 
+    # --- PDF 1: Standard formatted PDF (existing) ---
     pdf_file = out_path / f"{safe_title}.pdf"
     pdf_compiled = False
     try:
@@ -147,11 +148,27 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
 
     print(f"[Export] PDF compiled={pdf_compiled} | Size={pdf_file.stat().st_size if pdf_compiled else 0} bytes")
 
+    # --- PDF 2: IEEE Conference Two-Column Format (IEEEtran style) ---
+    conf_pdf_file = out_path / f"{safe_title}_conference.pdf"
+    conf_pdf_compiled = False
+    try:
+        from open_deep_research.ieee_conference_pdf import generate_ieee_conference_pdf
+        conf_pdf_compiled = generate_ieee_conference_pdf(
+            md_content=markdown_report,
+            output_pdf_path=str(conf_pdf_file),
+            title=title,
+            author=author,
+        )
+    except Exception as e:
+        print(f"[IEEE Conf PDF] Warning: {e}")
+
     return {
         "markdown_file": str(md_file),
         "typst_file": str(typ_file),
         "pdf_file": str(pdf_file) if pdf_compiled else None,
         "pdf_compiled": pdf_compiled,
+        "conference_pdf_file": str(conf_pdf_file) if conf_pdf_compiled else None,
+        "conference_pdf_compiled": conf_pdf_compiled,
         "audit_report": audit_files.get("audit_md"),
         "pipeline_state": pipeline_state,
     }
