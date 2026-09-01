@@ -941,17 +941,29 @@ def get_model_config(model_name: str, max_tokens: int, config: RunnableConfig) -
     # Prefer the per-model key from config if set, else use rotated key
     api_key = get_api_key_for_model(model_name, config) or rotated_key
 
-    cfg = {
-        "model": model_name,
+    # Strip provider prefix for the actual model name sent to the API
+    actual_model_name = model_name
+    model_provider = None
+    if ":" in model_name:
+        model_provider, actual_model_name = model_name.split(":", 1)
+
+    cfg_configurable = {
+        "model": actual_model_name,
         "max_tokens": max_tokens,
         "api_key": api_key,
-        "streaming": False,  # Disable streaming to avoid SSE parse issues
-        "tags": ["langsmith:nostream"]
     }
+    
+    if model_provider:
+        cfg_configurable["model_provider"] = model_provider
+    
     base_url = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE")
     if base_url and model_name.lower().startswith("openai:"):
-        cfg["base_url"] = base_url
-    return cfg
+        cfg_configurable["base_url"] = base_url
+
+    return {
+        "configurable": cfg_configurable,
+        "tags": ["langsmith:nostream"]
+    }
 
 
 # Global counter for cycling through MASTER_MODEL_LIST on fallback

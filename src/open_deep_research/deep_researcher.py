@@ -70,7 +70,7 @@ MASTER_MODEL_LIST = [
 # introspection in fallbacks.py (NameError: 'BaseModel' not defined), which causes
 # .with_structured_output() calls to crash. Fallback logic lives in get_model_config().
 configurable_model = init_chat_model(
-    configurable_fields=("model", "max_tokens", "api_key", "base_url"),
+    configurable_fields=("model", "model_provider", "max_tokens", "api_key", "base_url"),
 )
 
 async def clarify_with_user(state: AgentState, config: RunnableConfig) -> Command[Literal["write_research_brief", "__end__"]]:
@@ -579,10 +579,10 @@ async def compress_research(state: ResearcherState, config: RunnableConfig):
 
 # Researcher Subgraph Construction
 # Creates individual researcher workflow for conducting focused research on specific topics
-researcher_builder = StateGraph(  # type: ignore[call-arg]
+researcher_builder = StateGraph(
     ResearcherState,
-    output=ResearcherOutputState,
-    config_schema=Configuration
+    input_schema=ResearcherState,
+    output_schema=ResearcherOutputState,
 )
 
 # Add researcher nodes for research execution and compression
@@ -686,10 +686,10 @@ async def final_report_generation(state: AgentState, config: RunnableConfig):
 
 # Main Deep Researcher Graph Construction
 # Creates the complete deep research workflow from user input to final report
-deep_researcher_builder = StateGraph(  # type: ignore[call-arg]
+deep_researcher_builder = StateGraph(
     AgentState,
-    input=AgentInputState,
-    config_schema=Configuration
+    input_schema=AgentInputState,
+    output_schema=AgentState,
 )
 
 # Add main workflow nodes for the complete research process

@@ -127,6 +127,8 @@ def _generate_algorithm_via_llm(methodology_text: str, topic: str) -> str:
         api_key = os.environ.get("GROQ_API_KEY_1") or os.environ.get("GROQ_API_KEY")
         base_url = os.environ.get("OPENAI_API_BASE", "https://api.groq.com/openai/v1")
         model = os.environ.get("RESEARCH_MODEL", "openai/gpt-oss-120b")
+        if model and ":" in model:
+            model = model.split(":", 1)[1]
         
         if not api_key:
             return ""
