@@ -71,3 +71,5 @@ temp/
 # User Data & Generated Outputs
 output/
 reference_papers/
+reference*.txt
+*.txt
