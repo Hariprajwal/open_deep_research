@@ -34,20 +34,48 @@ async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "outp
         if default_dir.exists() and default_dir.is_dir() and any(default_dir.iterdir()):
             target_path = "reference_papers"
 
+    # 0. Handle ad-hoc reference.txt
+    additional_context = ""
+    ref_file = Path("reference.txt")
+    if ref_file.exists() and ref_file.is_file():
+        with open(ref_file, "r", encoding="utf-8") as f:
+            ref_content = f.read().strip()
+        if ref_content:
+            additional_context = f"Additional User Provided References:\n{ref_content}\n\n"
+        
+        # Rename the file so it's empty/reset for next run
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_name = f"reference_{timestamp}.txt"
+        ref_file.rename(backup_name)
+        # Create an empty reference.txt
+        Path("reference.txt").touch()
+        print(f"\n[INFO] Processed reference.txt and backed it up as {backup_name}")
+
     # 1. Handle Reference Documents / Papers Ingestion
     if target_path and Path(target_path).exists():
         print(f"\n[INFO] Ingesting reference papers from: {target_path}...")
         parsed_doc = parse_document_to_markdown(target_path)
-        if parsed_doc.strip():
+        if parsed_doc.strip() or additional_context:
+            combined_context = additional_context
+            if parsed_doc.strip():
+                combined_context += f"Reference Knowledge Base & Local Papers:\n{parsed_doc[:6000]}\n\n"
+            
             initial_messages.append({
                 "role": "user",
-                "content": f"Reference Knowledge Base & Local Papers:\n{parsed_doc[:6000]}\n\nUser Research Task:\n{topic}"
+                "content": f"{combined_context}User Research Task:\n{topic}"
             })
-            print(f"[OK] Ingested reference papers knowledge base.")
+            print(f"[OK] Ingested reference knowledge base.")
         else:
             initial_messages.append({"role": "user", "content": topic})
     else:
-        initial_messages.append({"role": "user", "content": topic})
+        if additional_context:
+            initial_messages.append({
+                "role": "user",
+                "content": f"{additional_context}User Research Task:\n{topic}"
+            })
+        else:
+            initial_messages.append({"role": "user", "content": topic})
 
     # 2. Execute Deep Researcher Graph (with clarification disabled for automated CLI use)
     print(f"\n[RUNNING] Deep Researcher multi-agent graph...")

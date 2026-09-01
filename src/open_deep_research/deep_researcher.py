@@ -52,7 +52,23 @@ from open_deep_research.utils import (
     think_tool,
 )
 
+# Tier-1 fallback models used when the primary model fails (rate limit, auth error, etc.)
+# get_model_config() in utils.py reads this list to pick a fallback automatically.
+MASTER_MODEL_LIST = [
+    # --- TIER 1: VERIFIED WORKING OMNIROUTE CLOUD MODELS (Sub-3s) ---
+    "gemini-1.5-flash",
+    "gpt-4o-mini",
+    "deepseek-chat",
+    "llama-3.1-70b",
+    "mistral-large",
+    "qwen-2.5-coder-32b",
+    "gemma-2-27b",
+]
+
 # Initialize a configurable model that we will use throughout the agent
+# NOTE: Do NOT wrap with .with_fallbacks() here — it breaks LangChain's type-hint
+# introspection in fallbacks.py (NameError: 'BaseModel' not defined), which causes
+# .with_structured_output() calls to crash. Fallback logic lives in get_model_config().
 configurable_model = init_chat_model(
     configurable_fields=("model", "max_tokens", "api_key", "base_url"),
 )

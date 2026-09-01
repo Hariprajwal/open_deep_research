@@ -952,3 +952,23 @@ def get_model_config(model_name: str, max_tokens: int, config: RunnableConfig) -
     if base_url and model_name.lower().startswith("openai:"):
         cfg["base_url"] = base_url
     return cfg
+
+
+# Global counter for cycling through MASTER_MODEL_LIST on fallback
+_fallback_model_counter = 0
+
+
+def get_fallback_model_config(max_tokens: int, config: RunnableConfig) -> dict:
+    """Return a config for the next fallback model from MASTER_MODEL_LIST.
+
+    Called when the primary model fails (e.g. rate-limit, auth error).
+    Cycles round-robin so successive failures each try a different model.
+    Avoids LangChain's .with_fallbacks() which breaks type-hint introspection.
+    """
+    global _fallback_model_counter
+    # Deferred import to avoid circular dependency (utils <- deep_researcher)
+    from open_deep_research.deep_researcher import MASTER_MODEL_LIST  # noqa: PLC0415
+    fallback_name = MASTER_MODEL_LIST[_fallback_model_counter % len(MASTER_MODEL_LIST)]
+    _fallback_model_counter += 1
+    logging.info(f"[Fallback] Switching to model: {fallback_name}")
+    return get_model_config(fallback_name, max_tokens, config)
