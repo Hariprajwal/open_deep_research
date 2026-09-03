@@ -53,9 +53,9 @@ def generate_audit_report(pipeline_results: Dict[str, Any], output_dir: str,
     except Exception as e:
         print(f"[Audit Report] PDF generation failed: {e}")
     
-    print(f"[Audit Report] Written → {md_file}")
+    print(f"[Audit Report] Written -> {md_file}")
     if pdf_generated:
-        print(f"[Audit Report] PDF compiled → {pdf_file}")
+        print(f"[Audit Report] PDF compiled -> {pdf_file}")
     
     return {
         "audit_md": str(md_file),
@@ -171,7 +171,7 @@ def _build_audit_markdown(results: Dict[str, Any], title: str, author: str) -> s
     if ai_audit.get("rewrite_log"):
         lines.append("**Rewrite Log:**")
         for entry in ai_audit["rewrite_log"]:
-            lines.append(f"- Score {entry['original_score']}: *\"{entry['paragraph_preview']}\"* → {entry['status']}")
+            lines.append(f"- Score {entry['original_score']}: *\"{entry['paragraph_preview']}\"* -> {entry['status']}")
         lines.append("")
     
     lines += [

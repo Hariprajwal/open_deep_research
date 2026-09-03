@@ -23,6 +23,45 @@ import re
 # ─────────────────────────────────────────────────────────────────────────────
 DOMAIN_REGISTRY = [
     {
+        "name": "Education Technology / Exam Systems / LLM Agents",
+        "keywords": ["exam", "syllabus", "question", "mcq", "quiz", "edtech", "student",
+                     "blueprint", "assessment", "proctoring", "cheating", "honor score",
+                     "knowledge graph", "learning", "agent", "orchestrator"],
+        "datasets": [
+            "ARC-Challenge (AI2 Reasoning Challenge, 7,787 science questions) — https://allenai.org/data/arc",
+            "MMLU (57-subject multiple-choice benchmark, 14,000 Qs) — https://github.com/hendrycks/test",
+            "RACE (reading comprehension, 97K Qs from Chinese exams) — https://www.cs.cmu.edu/~glai1/data/race/",
+        ],
+        "baselines": [
+            "Static item-bank exam platforms (manual question pools)",
+            "GPT-4 direct prompting without multi-agent orchestration",
+            "Single-provider LLM exam generator (no failover)",
+            "Sequential multi-agent pipeline (v1.0 architecture)",
+        ],
+        "metrics": [
+            "**End-to-End Latency (s)**: Wall-clock time from exam request to full package delivery.",
+            "**Question Uniqueness Rate (%)**: Fraction of questions passing SHA-256 deduplication.",
+            "**Syllabus Coverage (%)**: Sub-topics covered vs. official syllabus topic count.",
+            "**Honor Score Accuracy (%)**: Anti-cheat telemetry classification precision vs. ground truth.",
+            "**Knowledge Graph Growth Rate**: New questions and topics learned per session.",
+        ],
+        "hardware_note": "Benchmark all latency measurements on a standard cloud instance (e.g., 4 vCPU / 16 GB RAM) with async Python event loop. Report provider round-trip times per LLM call.",
+        "ablation_components": [
+            "Full Giant Blueprint single-pass system (v3.0)",
+            "Without parallel asyncio.gather — sequential agent calls",
+            "Without JSON salvage fallback — strict parse only",
+            "Without SHA-256 deduplication — allow repeated questions",
+            "Without self-learning knowledge graph — stateless generation",
+        ],
+        "reproducibility": [
+            "Report exact LLM provider, model name, and temperature used per run.",
+            "Specify async concurrency settings and per-provider timeout values.",
+            "Open-source prompt templates and agent orchestration code.",
+            "Provide benchmark scripts and environment YAML for reproduction.",
+        ],
+    },
+    {
+
         "name": "Autonomous Vehicles / Robotics / Perception",
         "keywords": ["vehicle", "driving", "robot", "navigation", "lidar", "sensor",
                      "collision", "autonomous", "trajectory", "perception", "localization"],
@@ -237,7 +276,12 @@ def inject_experimental_benchmarks(markdown_report: str, topic: str) -> str:
             parts = markdown_report.split(marker, 1)
             return parts[0] + exp_section + f"\n\n{marker}" + parts[1]
 
-    for conclusion_pattern in [r'##\s*(?:Conclusion|CONCLUSION)', r'##\s*(?:Summary|SUMMARY)']:
+    for conclusion_pattern in [
+        r'##\s*\d+\.\s*(?:Conclusion|CONCLUSION)',
+        r'##\s*(?:Conclusion|CONCLUSION)',
+        r'##\s*\d+\.\s*(?:Summary|SUMMARY)',
+        r'##\s*(?:Summary|SUMMARY)',
+    ]:
         m = re.search(conclusion_pattern, markdown_report)
         if m:
             return markdown_report[:m.start()] + exp_section + "\n\n" + markdown_report[m.start():]
