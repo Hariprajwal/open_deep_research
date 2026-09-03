@@ -39,7 +39,7 @@ h2 {
     font-size: 10.5pt;
     font-weight: bold;
     color: #0F172A;
-    border-bottom: 1.5px solid #0EA5E9;
+    border-bottom: 1px solid #334155;
     padding-bottom: 2px;
     margin-top: 16px;
     margin-bottom: 7px;
@@ -50,7 +50,7 @@ h2 {
 h3 {
     font-size: 9.5pt;
     font-weight: bold;
-    color: #0EA5E9;
+    color: #0F172A;
     margin-top: 11px;
     margin-bottom: 4px;
 }
@@ -73,7 +73,7 @@ code {
 pre {
     background-color: #F8FAFC;
     border: 1px solid #CBD5E1;
-    border-left: 3px solid #0EA5E9;
+    border-left: 3px solid #334155;
     padding: 7px 10px;
     font-family: Courier, monospace;
     font-size: 7.8pt;
@@ -137,10 +137,10 @@ em {
 }
 
 blockquote {
-    border-left: 3px solid #0EA5E9;
+    border-left: 3px solid #334155;
     margin: 8px 0;
     padding: 5px 10px;
-    background: #F0F9FF;
+    background: #F8FAFC;
     font-size: 9pt;
     color: #334155;
 }
