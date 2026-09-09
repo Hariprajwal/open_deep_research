@@ -226,26 +226,26 @@ def build_table_env(
 
     lines = [f"\\begin{{table}}[{position}]"]
     lines.append("\\centering")
-    lines.append(f"\\caption{{\\uppercase{{{escape_latex(caption)}}}}}")
+    lines.append(f"\\caption{{\\uppercase{{{caption}}}}}")
     lines.append(f"\\label{{tab:{label}}}")
     lines.append(f"\\begin{{tabular}}{{{col_format}}}")
     lines.append("\\toprule")
 
     # Header row
-    header_cells = " & ".join(f"\\textbf{{{escape_latex(h)}}}" for h in headers)
+    header_cells = " & ".join(f"\\textbf{{{h}}}" for h in headers)
     lines.append(f"{header_cells} \\\\")
     lines.append("\\midrule")
 
     # Data rows
     for row in rows:
-        cells = " & ".join(escape_latex(str(c)) for c in row)
+        cells = " & ".join(str(c) for c in row)
         lines.append(f"{cells} \\\\")
 
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
 
     if footnote:
-        lines.append(f"\\begin{{tablenotes}}\\footnotesize\\item {escape_latex(footnote)}\\end{{tablenotes}}")
+        lines.append(f"\\begin{{tablenotes}}\\footnotesize\\item {footnote}\\end{{tablenotes}}")
 
     lines.append("\\end{table}")
     return "\n".join(lines)
@@ -281,7 +281,7 @@ def build_figure_env(
     lines = [f"\\begin{{{env}}}[{position}]"]
     lines.append("\\centering")
     lines.append(f"\\includegraphics[width={width}]{{{image_path}}}")
-    lines.append(f"\\caption{{{escape_latex(caption)}}}")
+    lines.append(f"\\caption{{{caption}}}")
     lines.append(f"\\label{{fig:{label}}}")
     lines.append(f"\\end{{{env}}}")
     return "\n".join(lines)
