@@ -147,14 +147,14 @@ def build_algorithm_env(
         Complete LaTeX algorithm block as a string.
     """
     lines = ["\\begin{algorithm}[t]"]
-    lines.append(f"\\caption{{{escape_latex(caption)}}}")
+    lines.append(f"\\caption{{{caption}}}")
     lines.append(f"\\label{{alg:{label}}}")
     lines.append("\\begin{algorithmic}[1]")
 
     if inputs:
-        lines.append(f"\\Require {smart_escape(inputs)}")
+        lines.append(f"\\Require {inputs}")
     if outputs:
-        lines.append(f"\\Ensure {smart_escape(outputs)}")
+        lines.append(f"\\Ensure {outputs}")
 
     for step in steps:
         stripped = step.strip()
@@ -162,29 +162,32 @@ def build_algorithm_env(
 
         if stripped.upper().startswith("IF ") or stripped.upper().startswith("IF:"):
             cond = re.sub(r'^if\s*:?\s*', '', stripped, flags=re.IGNORECASE)
-            lines.append(f"{indent}\\If{{{smart_escape(cond)}}}")
+            lines.append(f"{indent}\\If{{{cond}}}")
+        elif stripped.upper().startswith("ELSE IF ") or stripped.upper().startswith("ELSEIF "):
+            cond = re.sub(r'^else\s*if\s*:?\s*', '', stripped, flags=re.IGNORECASE)
+            lines.append(f"{indent}\\ElsIf{{{cond}}}")
         elif stripped.upper() in ("ELSE", "ELSE:"):
             lines.append(f"{indent}\\Else")
         elif stripped.upper() in ("ENDIF", "END IF", "END"):
             lines.append(f"{indent}\\EndIf")
         elif stripped.upper().startswith("FOR ") or stripped.upper().startswith("FOR:"):
             cond = re.sub(r'^for\s*:?\s*', '', stripped, flags=re.IGNORECASE)
-            lines.append(f"{indent}\\For{{{smart_escape(cond)}}}")
+            lines.append(f"{indent}\\For{{{cond}}}")
         elif stripped.upper() in ("ENDFOR", "END FOR"):
             lines.append(f"{indent}\\EndFor")
         elif stripped.upper().startswith("WHILE ") or stripped.upper().startswith("WHILE:"):
             cond = re.sub(r'^while\s*:?\s*', '', stripped, flags=re.IGNORECASE)
-            lines.append(f"{indent}\\While{{{smart_escape(cond)}}}")
+            lines.append(f"{indent}\\While{{{cond}}}")
         elif stripped.upper() in ("ENDWHILE", "END WHILE"):
             lines.append(f"{indent}\\EndWhile")
         elif stripped.upper().startswith("RETURN ") or stripped.upper().startswith("RETURN:"):
             val = re.sub(r'^return\s*:?\s*', '', stripped, flags=re.IGNORECASE)
-            lines.append(f"{indent}\\State \\textbf{{return}} {smart_escape(val)}")
+            lines.append(f"{indent}\\State \\textbf{{return}} {val}")
         elif stripped.upper().startswith("COMMENT:"):
             cmt = re.sub(r'^comment\s*:?\s*', '', stripped, flags=re.IGNORECASE)
-            lines.append(f"{indent}\\Comment{{{smart_escape(cmt)}}}")
+            lines.append(f"{indent}\\Comment{{{cmt}}}")
         else:
-            lines.append(f"{indent}\\State {smart_escape(stripped)}")
+            lines.append(f"{indent}\\State {stripped}")
 
     lines.append("\\end{algorithmic}")
     lines.append("\\end{algorithm}")
