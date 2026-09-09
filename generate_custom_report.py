@@ -96,6 +96,10 @@ OUTPUT: Unified Exam Package Dict P (Syllabus Tree, Calibrated Questions, Concep
 
 ### 3.2 Algorithm 2: Multi-Provider Round-Robin Failover & Thinking-Tag Scrubbing
 
+![Figure 3: Multi-Provider Round-Robin LLM Failover Architecture](output/mock_any_exam_report/figures/fig3_llm_failover.png)
+
+*Figure 3: The Central Brain Orchestrator iterates across five provider tiers (Groq → Custom OpenAI → Gemini → OpenRouter → Cerebras) with per-provider cooldown tracking, model rotation, and think-tag scrubbing on successful completions.*
+
 ```python
 \"\"\"
 ALGORITHM 2: Multi-Provider LLM Round-Robin Failover Engine
@@ -129,10 +133,6 @@ OUTPUT: Completion Dict {success: bool, content: str,
      set short cooldown cooldown_until[p] = t + 5s.
 3. RETURN Failure state (All providers exhausted or timed out).
 ```
-
-![Figure 3: Multi-Provider Round-Robin LLM Failover Architecture](output/mock_any_exam_report/figures/fig3_llm_failover.png)
-
-*Figure 3: The Central Brain Orchestrator iterates across five provider tiers (Groq → Custom OpenAI → Gemini → OpenRouter → Cerebras) with per-provider cooldown tracking, model rotation, and think-tag scrubbing on successful completions.*
 
 ---
 
