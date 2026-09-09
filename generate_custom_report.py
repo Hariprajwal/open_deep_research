@@ -74,12 +74,15 @@ ALGORITHM 1: Single-Pass Giant Blueprint Synthesis & Parallel Pipeline
 INPUT: Exam Title E, Description D, Question Count N, Difficulty L, PDF Bytes (Optional)
 OUTPUT: Unified Exam Package Dict P (Syllabus Tree, Calibrated Questions, Concept Guides)
 \"\"\"
-1. Construct single-pass prompt P_bp(E, D) requesting full Domain-Topic-Subtopic hierarchy in JSON.
-2. Dispatch completion request to CentralBrainAgent via asyncio.gather alongside Web Crawler research.
+1. Construct single-pass prompt P_bp(E, D) requesting full 
+   Domain-Topic-Subtopic hierarchy in JSON.
+2. Dispatch completion request to CentralBrainAgent via asyncio.gather 
+   alongside Web Crawler research.
 3. Parse LLM response text T_raw using extract_json_from_text().
 4. IF JSON parsing fails:
      Invoke try_salvage_partial_json(T_raw) to extract completed domain objects.
-5. Apply tolerant schema normalization: handle dict keys, missing names, and single-domain flat structures.
+5. Apply tolerant schema normalization: handle dict keys, missing names, 
+   and single-domain flat structures.
 6. Extract final sub-topic pool T_pool and question format array [MCQ, MSQ, NAT].
 7. Concurrently spawn QuestionGeneratorAgent and ConceptLearningAgent over T_pool via asyncio.gather().
 8. Assemble unified exam package Object P = {blueprint, questions, learning_suite, telemetry_logs}.
@@ -97,24 +100,33 @@ OUTPUT: Unified Exam Package Dict P (Syllabus Tree, Calibrated Questions, Concep
 \"\"\"
 ALGORITHM 2: Multi-Provider LLM Round-Robin Failover Engine
 INPUT: Prompt P, System Instruction S, Max Tokens M, Temperature tau
-OUTPUT: Completion Dict {success: bool, content: str, provider: str, latency_ms: float}
+OUTPUT: Completion Dict {success: bool, content: str, 
+        provider: str, latency_ms: float}
 \"\"\"
-1. Initialize Provider Order O = [Groq, Custom_OpenAI, Gemini, OpenRouter, Cerebras].
+1. Initialize Provider Order O = [Groq, Custom_OpenAI, Gemini, 
+   OpenRouter, Cerebras].
 2. FOR EACH provider p in O DO:
-     IF p is currently cooldowned (current_time < cooldown_until[p]) THEN CONTINUE.
-     Retrieve active API key k = GetActiveKey(p) via round-robin index.
+     IF p is currently cooldowned (current_time < 
+     cooldown_until[p]) THEN CONTINUE.
+     Retrieve active API key k = GetActiveKey(p) via round-robin 
+     index.
      FOR EACH candidate model m in Models[p] DO:
        TRY:
-         Execute HTTP completion request with provider-specific timeout.
+         Execute HTTP completion request with provider-specific 
+         timeout.
          IF successful:
            Preprocess completion text via _strip_think_tags(content).
-           Update provider telemetry stats, rotate model index, and RETURN response dict.
+           Update provider telemetry stats, rotate model index, 
+           and RETURN response dict.
        CATCH Exception e:
          IF '401 Unauthorized' in e:
-           Set long cooldown cooldown_until[p] = t + 300s; BREAK model loop.
+           Set long cooldown cooldown_until[p] = t + 300s; 
+           BREAK model loop.
          IF '429 Rate Limit' in e:
-           Rotate model index for p; sleep 0.4s; RETRY next model in Models[p].
-     Advance provider key index RotateKey(p); set short cooldown cooldown_until[p] = t + 5s.
+           Rotate model index for p; sleep 0.4s; RETRY next model 
+           in Models[p].
+     Advance provider key index RotateKey(p); 
+     set short cooldown cooldown_until[p] = t + 5s.
 3. RETURN Failure state (All providers exhausted or timed out).
 ```
 
@@ -155,8 +167,10 @@ Digest(q) = Hex_16( SHA-256( Lowercase( Trim(q.question_text) ) ) )
 ```python
 \"\"\"
 ALGORITHM 4: Cheating-Pro Anti-Cheat Telemetry Audit Engine
-INPUT: Session Telemetry Vector T = <t_blur, n_switches, n_clipboard, fullscreen_exits>
-OUTPUT: Honor Score Evaluation Dict (Honor Score %, Risk Category, Penalty Details)
+INPUT: Session Telemetry Vector T = <t_blur, n_switches, 
+       n_clipboard, fullscreen_exits>
+OUTPUT: Honor Score Evaluation Dict (Honor Score %, Risk Category, 
+        Penalty Details)
 \"\"\"
 1. Initialize baseline honor score S_base = 100.
 2. Compute blur duration penalty: P_blur = min(30, floor(t_blur / 10) * 5).
@@ -178,7 +192,8 @@ OUTPUT: Honor Score Evaluation Dict (Honor Score %, Risk Category, Penalty Detai
 \"\"\"
 ALGORITHM 5: Self-Learning Knowledge Base Graph Ingestion
 INPUT: Generated Exam Package Dict P
-OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics: int, total_knowledge: Dict}
+OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, 
+        new_topics: int, total_knowledge: Dict}
 \"\"\"
 1. Extract questions Q, topics T_top, concepts C, and blueprint B from exam package P.
 2. FOR EACH question q in Q DO:
