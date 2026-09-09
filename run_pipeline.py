@@ -18,6 +18,93 @@ load_dotenv()
 from open_deep_research.deep_researcher import deep_researcher
 from open_deep_research.pdf_parser import parse_document_to_markdown
 from open_deep_research.ieee_exporter import export_to_ieee
+from open_deep_research.latex_ieee_generator import (
+    assemble_ieee_document, generate_bibtex_file, write_ieee_paper,
+    section, md_paragraph_to_latex
+)
+
+
+def _export_ieee_latex(markdown_report: str, output_dir: str, title: str, author: str) -> dict:
+    """
+    Convert any deep-research markdown report into a proper IEEEtran LaTeX paper.
+    Called automatically at the end of run_pipeline() for every research run.
+    """
+    import re
+    import copy
+    import subprocess
+
+    # Split markdown into top-level ## sections -> one LaTeX \section each
+    raw_sections = re.split(r'(?=^## )', markdown_report, flags=re.MULTILINE)
+    latex_sections = []
+    for raw in raw_sections:
+        if not raw.strip():
+            continue
+        lines = raw.strip().split('\n')
+        header = lines[0].lstrip('#').strip()
+        body_md = '\n'.join(lines[1:]).strip()
+        body_latex = md_paragraph_to_latex(body_md)
+        if header:
+            latex_sections.append(section(header, body_latex))
+
+    if not latex_sections:
+        latex_sections = [section("Research Findings", md_paragraph_to_latex(markdown_report))]
+
+    refs = [{
+        "key": "opendeepresearch2026",
+        "type": "misc",
+        "author": author,
+        "title": title,
+        "howpublished": "Open Deep Research Engine",
+        "year": "2026",
+    }]
+    bib_content = generate_bibtex_file(copy.deepcopy(refs))
+
+    # Use first 250 words as abstract
+    abstract_words = markdown_report.split()
+    abstract = ' '.join(abstract_words[:250]) + ('...' if len(abstract_words) > 250 else '')
+    keywords = [w for w in re.split(r'\W+', title.lower()) if len(w) > 3][:6]
+
+    tex_content = assemble_ieee_document(
+        title=title,
+        authors=[{"name": author, "affiliation": "Open Deep Research Engine", "email": ""}],
+        abstract=abstract,
+        keywords=keywords,
+        sections=latex_sections,
+        bib_filename="references",
+    )
+
+    latex_out_dir = str(Path(output_dir) / "ieee_latex")
+    result = write_ieee_paper(
+        output_dir=latex_out_dir,
+        tex_content=tex_content,
+        bib_content=bib_content,
+        tex_filename="paper.tex",
+        bib_filename="references.bib",
+    )
+
+    # Attempt pdflatex compilation (4-pass for full references resolution)
+    try:
+        for _ in range(2):
+            subprocess.run(
+                ["pdflatex", "-interaction=nonstopmode", "paper.tex"],
+                cwd=latex_out_dir, capture_output=True, timeout=120
+            )
+        subprocess.run(["bibtex", "paper"], cwd=latex_out_dir, capture_output=True, timeout=30)
+        for _ in range(2):
+            subprocess.run(
+                ["pdflatex", "-interaction=nonstopmode", "paper.tex"],
+                cwd=latex_out_dir, capture_output=True, timeout=120
+            )
+        pdf_path = Path(latex_out_dir) / "paper.pdf"
+        result["pdf_compiled"] = pdf_path.exists() and pdf_path.stat().st_size > 1000
+        result["pdf_file"] = str(pdf_path) if result["pdf_compiled"] else None
+    except Exception as e:
+        result["pdf_compiled"] = False
+        result["pdf_file"] = None
+        result["pdf_error"] = str(e)
+
+    return result
+
 
 async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "output", author: str = "Research Agent System"):
     import datetime
@@ -125,6 +212,23 @@ async def run_pipeline(topic: str, pdf_path: str = None, output_dir: str = "outp
         if not export_result['pdf_compiled'] and not export_result.get('conference_pdf_compiled'):
             print(f"  - PDF Note      : Install 'typst' to auto-compile PDF from '{export_result['typst_file']}'")
 
+        # 4. Generate proper IEEEtran LaTeX paper
+        print(f"\n[LATEX] Generating IEEEtran LaTeX paper...")
+        try:
+            latex_result = _export_ieee_latex(
+                markdown_report=final_report,
+                output_dir=output_dir,
+                title=topic,
+                author=author,
+            )
+            print(f"  - LaTeX .tex    : {latex_result['tex_file']}")
+            print(f"  - BibTeX .bib   : {latex_result['bib_file']}")
+            if latex_result.get('pdf_compiled'):
+                print(f"  - IEEE LaTeX PDF: {latex_result['pdf_file']}")
+            else:
+                print(f"  - IEEE LaTeX PDF: (compile manually with pdflatex or upload to Overleaf)")
+        except Exception as e:
+            print(f"[LATEX] Warning: LaTeX export failed: {e}")
     except KeyboardInterrupt:
         print("\n[STOPPED] Pipeline interrupted by user.")
     except Exception as e:
