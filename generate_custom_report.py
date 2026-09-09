@@ -209,15 +209,15 @@ OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics:
 
 ## 5. User Interface & Proctoring Engine Architecture
 
+![Figure 7: Anti-Cheat Telemetry Audit Engine Architecture](output/mock_any_exam_report/figures/fig7_anticheat_system.png)
+
+*Figure 7: The four browser event listeners feed into a Telemetry Vector, which Algorithm 4 decomposes into four weighted penalty components (P_blur, P_switch, P_clip, P_full) to compute a final Honor Score mapped to three risk tiers.*
+
 **Official TCS iON Exam Portal Emulation:** To eliminate platform novelty shock during actual examinations, the React 19 frontend replicates the official TCS iON exam portal layout used in national competitive exams like GATE, SSC, and bank POs. Key emulated UI elements include a candidate profile panel (name, roll number, exam duration countdown), sectional navigation tabs, and a full-colour question state palette with four distinct states: *Not Visited* (grey), *Answered* (green), *Marked for Review* (purple), and *Answered & Marked for Review* (purple with green tick). Dual-theme switching between the official light-mode GATE portal skin and a modern dark glassmorphism mode is supported in real time.
 
 **Scientific Calculator & NAT Keypad:** A floating drag-and-drop scientific calculator provides trigonometric, logarithmic, inverse, factorial, and memory functions (M+, M-, MR, MC) for computational problem solving. For Numerical Answer Type (NAT) questions, a dedicated virtual numpad replaces the option grid, accepting positive and negative decimal values with sign toggle. Mathematical expressions throughout the interface are rendered client-side using the **KaTeX 0.18 LaTeX engine**, enabling correct typesetting of fractions, integrals, summations, and Greek symbols.
 
 **Cheating-Pro Telemetry Proctoring (Anti-Cheat Guard):** The client `ProctorGuard` component attaches native browser event listeners at session start, capturing: (1) `window.blur` / `window.focus` events to detect tab switches or alt-tab, (2) `document.visibilitychange` for background tab detection, (3) `document.copy` / `paste` events for clipboard monitoring, and (4) `fullscreenchange` for fullscreen exits. Cumulative telemetry vectors are packaged and dispatched to `AntiCheatAgent` on exam submission, where Algorithm 4 evaluates the 0-100% Honor Score and emits a structured risk classification.
-
-![Figure 7: Anti-Cheat Telemetry Audit Engine Architecture](output/mock_any_exam_report/figures/fig7_anticheat_system.png)
-
-*Figure 7: The four browser event listeners feed into a Telemetry Vector, which Algorithm 4 decomposes into four weighted penalty components (P_blur, P_switch, P_clip, P_full) to compute a final Honor Score mapped to three risk tiers.*
 
 ![Figure 8: React 19 Frontend & TCS iON Portal Emulation Architecture](output/mock_any_exam_report/figures/fig8_ui_architecture.png)
 
