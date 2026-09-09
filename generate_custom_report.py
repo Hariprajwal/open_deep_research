@@ -142,7 +142,11 @@ OUTPUT: Boolean Decision (True = Unique, False = Duplicate)
      INSERT H_16 into H_set and ACCEPT question q.
 ```
 
-$$\\text{Digest}(q) = \\text{Hex}_{16}\\Big(\\text{SHA-256}\\big(\\text{Lowercase}(\\text{Trim}(q.\\text{question\\_text}))\\big)\\Big)$$
+**Deduplication Formula:**
+
+```
+Digest(q) = Hex_16( SHA-256( Lowercase( Trim(q.question_text) ) ) )
+```
 
 ---
 
@@ -197,7 +201,7 @@ OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics:
 | **Syllabus Blueprint Synthesis** | 32.4s (12 sequential calls) | **1.9s** (1 batch call) | **17.1x Faster** |
 | **Question Crafting (8 Qs)** | 148.2s (8 individual calls) | **5.4s** (1 giant call) | **27.4x Faster** |
 | **Concept & Learning Suite** | 41.5s (4 separate modules) | **3.8s** (1 combined call) | **10.9x Faster** |
-| **Total End-to-End Exam Launch** | **222.1s (3.7 minutes)** | **15.7s** | **⚡ 14.1x Acceleration** |
+| **Total End-to-End Exam Launch** | **222.1s (3.7 minutes)** | **15.7s** | **14.1x Total Acceleration** |
 
 ---
 

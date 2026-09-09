@@ -51,16 +51,17 @@ def audit_and_enrich_submission_structure(markdown_report: str, title: str) -> T
         if not found:
             missing_sections.append(section_name)
     
-    # Inject Discussion & Limitations if missing
-    if not section_status.get("Discussion & Limitations", False):
-        # Extract conclusion and methodology text from the paper
-        paper_context = _extract_paper_context(markdown_report)
-        discussion_block = _generate_discussion_via_llm(paper_context, title)
-        if not discussion_block:
-            discussion_block = _generate_discussion_fallback(title, markdown_report)
-        markdown_report = _inject_section_before_conclusion(markdown_report, discussion_block)
-        section_status["Discussion & Limitations"] = True
-        print(f"[Submission Verifier] Injected Discussion & Limitations section.")
+    # Discussion & Limitations injection DISABLED — paper already covers this
+    # in Section 6 (Self-Learning Knowledge Graph) and Section 8 (Conclusion).
+    # Uncomment the block below to re-enable auto-injection.
+    # if not section_status.get("Discussion & Limitations", False):
+    #     paper_context = _extract_paper_context(markdown_report)
+    #     discussion_block = _generate_discussion_via_llm(paper_context, title)
+    #     if not discussion_block:
+    #         discussion_block = _generate_discussion_fallback(title, markdown_report)
+    #     markdown_report = _inject_section_before_conclusion(markdown_report, discussion_block)
+    #     section_status["Discussion & Limitations"] = True
+    #     print(f"[Submission Verifier] Injected Discussion & Limitations section.")
     
     # Inject Paper Contributions if missing
     if not section_status.get("Contributions", False):

@@ -51,15 +51,17 @@ def export_to_ieee(markdown_report: str, output_dir: str = "output",
     except Exception as e:
         print(f"[Step 1 SKIP] Citation Guardrail: {e}")
 
-    # STEP 2 -- Experimental Benchmark Protocol
-    try:
-        from open_deep_research.experiment_benchmarker import inject_experimental_benchmarks
-        before_len = len(markdown_report)
-        markdown_report = inject_experimental_benchmarks(markdown_report, title)
-        pipeline_state["benchmark_injected"] = len(markdown_report) > before_len
-        print(f"[Step 2 OK] Benchmark Engine: injected={pipeline_state['benchmark_injected']}")
-    except Exception as e:
-        print(f"[Step 2 SKIP] Benchmark Engine: {e}")
+    # STEP 2 -- Experimental Benchmark Protocol (DISABLED — user does not want this section)
+    # To re-enable, uncomment the block below.
+    # try:
+    #     from open_deep_research.experiment_benchmarker import inject_experimental_benchmarks
+    #     before_len = len(markdown_report)
+    #     markdown_report = inject_experimental_benchmarks(markdown_report, title)
+    #     pipeline_state["benchmark_injected"] = len(markdown_report) > before_len
+    #     print(f"[Step 2 OK] Benchmark Engine: injected={pipeline_state['benchmark_injected']}")
+    # except Exception as e:
+    #     print(f"[Step 2 SKIP] Benchmark Engine: {e}")
+    print("[Step 2 SKIP] Benchmark Engine: disabled by user")
 
     # STEP 3 -- Algorithmic Formalization
     try:
