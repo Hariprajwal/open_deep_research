@@ -9,6 +9,9 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from open_deep_research.ieee_exporter import export_to_ieee
 
+# Figures directory (relative to output folder, used for image embedding)
+FIGURES_DIR = Path(__file__).parent / "output" / "mock_any_exam_report" / "figures"
+
 MOCK_ANY_EXAM_CONTENT = """# Mock Any Exam: A Scalable Multi-Agent AI Framework for Autonomous Syllabus Crawling, High-Speed Blueprint Synthesis, and Scientific Exam Emulation
 
 **Technical Architecture Report & Algorithmic Research Draft Paper**  
@@ -55,6 +58,12 @@ The core framework consists of **nine specialized software agents** coordinated 
 
 ---
 
+![Figure 1: Mock Any Exam Multi-Agent Swarm Architecture](output/mock_any_exam_report/figures/fig1_multi_agent_architecture.png)
+
+*Figure 1: The nine-agent swarm coordinated by the Master Orchestrator Agent. All sub-agents operate in parallel asynchronous pipelines, reducing total exam generation time to under 15.7 seconds.*
+
+---
+
 ## 3. Deep Algorithmic Specifications & Implementation Pseudocode
 
 ### 3.1 Algorithm 1: Single-Pass Giant Blueprint Synthesis Engine
@@ -75,6 +84,10 @@ OUTPUT: Unified Exam Package Dict P (Syllabus Tree, Calibrated Questions, Concep
 7. Concurrently spawn QuestionGeneratorAgent and ConceptLearningAgent over T_pool via asyncio.gather().
 8. Assemble unified exam package Object P = {blueprint, questions, learning_suite, telemetry_logs}.
 ```
+
+![Figure 2: Single-Pass Giant Blueprint Synthesis Pipeline](output/mock_any_exam_report/figures/fig2_algorithm1_flowchart.png)
+
+*Figure 2: End-to-end flowchart of Algorithm 1. The asyncio.gather() parallel fork simultaneously dispatches the LLM completion and web crawler research, with JSON salvage fallback on parse failure.*
 
 ---
 
@@ -104,6 +117,10 @@ OUTPUT: Completion Dict {success: bool, content: str, provider: str, latency_ms:
      Advance provider key index RotateKey(p); set short cooldown cooldown_until[p] = t + 5s.
 3. RETURN Failure state (All providers exhausted or timed out).
 ```
+
+![Figure 3: Multi-Provider Round-Robin LLM Failover Architecture](output/mock_any_exam_report/figures/fig3_llm_failover.png)
+
+*Figure 3: The Central Brain Orchestrator iterates across five provider tiers (Groq → Custom OpenAI → Gemini → OpenRouter → Cerebras) with per-provider cooldown tracking, model rotation, and think-tag scrubbing on successful completions.*
 
 ---
 
@@ -184,6 +201,12 @@ OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics:
 
 ---
 
+![Figure 6: Performance Benchmark — Sequential v1.0 vs. Giant Blueprint v3.0](output/mock_any_exam_report/figures/fig6_benchmark_chart.png)
+
+*Figure 6: Grouped horizontal bar chart comparing end-to-end latency across four execution phases. The Giant Blueprint architecture achieves a 27.4× speedup in question crafting and a 14.1× total acceleration.*
+
+---
+
 ## 5. User Interface & Proctoring Engine Architecture
 
 **Official TCS iON Exam Portal Emulation:** To eliminate platform novelty shock during actual examinations, the React 19 frontend replicates the official TCS iON exam portal layout used in national competitive exams like GATE, SSC, and bank POs. Key emulated UI elements include a candidate profile panel (name, roll number, exam duration countdown), sectional navigation tabs, and a full-colour question state palette with four distinct states: *Not Visited* (grey), *Answered* (green), *Marked for Review* (purple), and *Answered & Marked for Review* (purple with green tick). Dual-theme switching between the official light-mode GATE portal skin and a modern dark glassmorphism mode is supported in real time.
@@ -192,6 +215,14 @@ OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics:
 
 **Cheating-Pro Telemetry Proctoring (Anti-Cheat Guard):** The client `ProctorGuard` component attaches native browser event listeners at session start, capturing: (1) `window.blur` / `window.focus` events to detect tab switches or alt-tab, (2) `document.visibilitychange` for background tab detection, (3) `document.copy` / `paste` events for clipboard monitoring, and (4) `fullscreenchange` for fullscreen exits. Cumulative telemetry vectors are packaged and dispatched to `AntiCheatAgent` on exam submission, where Algorithm 4 evaluates the 0-100% Honor Score and emits a structured risk classification.
 
+![Figure 7: Anti-Cheat Telemetry Audit Engine Architecture](output/mock_any_exam_report/figures/fig7_anticheat_system.png)
+
+*Figure 7: The four browser event listeners feed into a Telemetry Vector, which Algorithm 4 decomposes into four weighted penalty components (P_blur, P_switch, P_clip, P_full) to compute a final Honor Score mapped to three risk tiers.*
+
+![Figure 8: React 19 Frontend & TCS iON Portal Emulation Architecture](output/mock_any_exam_report/figures/fig8_ui_architecture.png)
+
+*Figure 8: Three-layer component hierarchy of the React 19 frontend. Layer 1 provides the exam shell (profile panel, nav tabs, theme toggle); Layer 2 renders questions with KaTeX math; Layer 3 hosts the floating calculator, ProctorGuard collector, and submit handler.*
+
 ---
 
 ## 6. Self-Learning Knowledge Base Graph Architecture
@@ -199,6 +230,10 @@ OUTPUT: Knowledge Update Summary {learned: bool, new_questions: int, new_topics:
 Every generated exam package is automatically ingested into a local persistent JSON knowledge store located in `backend/_knowledge/`. The `KnowledgeModel` maintains five structured stores: `questions_bank.json` (all questions indexed by SHA-256 content hash), `topics_knowledge.json` (per-topic metadata including formula lists and worked example counts), `exams_history.json` (chronological generation records), `patterns_learned.json` (question type and difficulty distributions), and `model_stats.json` (global growth telemetry and session logs).
 
 Over repeated exam generation sessions, the knowledge graph accumulates sufficient domain coverage to enable **zero-latency offline exam compilation** without external LLM API calls. The `suggest_questions_from_knowledge()` method implements the beginning of fully autonomous exam generation—sampling calibrated questions from the in-memory bank by exam title, topic match, and type distribution, progressively reducing dependency on external providers as the knowledge base matures.
+
+![Figure 5: Self-Learning Knowledge Base Graph Architecture](output/mock_any_exam_report/figures/fig5_knowledge_graph.png)
+
+*Figure 5: The KnowledgeModel Core maintains five persistent JSON stores. With each session, new question hashes, topic nodes, and pattern statistics are appended, enabling progressive reduction of external LLM dependency.*
 
 ---
 
