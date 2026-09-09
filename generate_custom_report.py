@@ -22,7 +22,7 @@ MOCK_ANY_EXAM_CONTENT = """# Mock Any Exam: A Scalable Multi-Agent AI Framework 
 
 ---
 
-## 📄 Abstract
+## Abstract
 
 Traditional educational testing platforms rely heavily on static, pre-authored item banks, rigid domain schemas, and high API latency when coordinating sequential multi-step Large Language Model (LLM) operations. This paper presents **Mock Any Exam**, a zero-hardcoding multi-agent swarm architecture that synthesizes comprehensive, multi-subject competitive examinations (including MCQs, MSQs, and Numerical Answer Type NAT questions) for any academic or professional exam globally in **under 15.7 seconds**. 
 
@@ -46,15 +46,15 @@ The core framework consists of **nine specialized software agents** coordinated 
 
 | Agent Identifier | Core Role & Responsibilities | Implementation File | Key Outputs |
 | :--- | :--- | :--- | :--- |
-| **Master Orchestrator Agent** | Central regulator; manages agent lifecycles, parallel async pipelines, and fallback routing. | `master_orchestrator.py` | Full Exam Package Dict |
-| **Central Brain Orchestrator** | Multi-provider LLM inference hub with key rotation, model fallback, and rate-limit handling. | `central_brain.py` | Raw LLM Completions |
-| **Web Crawler & Research Agent** | Queries search engines for live domain blueprints, topic weightages, and sub-topics. | `web_crawler_agent.py` | Research Metadata |
-| **PDF Reader & OCR Agent** | Parses custom uploaded PDF syllabi/notes, extracts textual tokens, and identifies topic hierarchies. | `pdf_reader_agent.py` | Topic List & Clean Text |
-| **Question Generator Agent** | Crafts calibrated MCQs, MSQs, NATs with step-by-step derivations and LaTeX formulas. | `question_generator_agent.py` | Question Array + Explanations |
-| **Concept & Learning Agent** | Synthesizes 5 progressive worked examples per topic (Level 1 Foundational to Level 5 Master). | `concept_learning_agent.py` | Study Guides & Formulas |
-| **Anti-Cheat Proctor Guard** | Evaluates client browser telemetry (blur events, tab switches, copy-paste) into a 0-100% Honor Score. | `anti_cheat_agent.py` | Telemetry Audit Score |
-| **Diagram Synthesis Agent** | Generates dynamic SVG vector graphics for technical problem figures, circuits, and flowcharts. | `diagram_agent.py` | Inline SVG Strings |
-| **Self-Learning Knowledge Model** | Indexes exam packages into a persistent JSON knowledge store, learning topics and patterns over time. | `knowledge_model.py` | Knowledge Graph & Stats |
+| **Master Orchestrator Agent** | Central regulator; manages agent lifecycles, parallel async pipelines, and fallback routing. | master_orchestrator.py | Full Exam Package Dict |
+| **Central Brain Orchestrator** | Multi-provider LLM inference hub with key rotation, model fallback, and rate-limit handling. | central_brain.py | Raw LLM Completions |
+| **Web Crawler & Research Agent** | Queries search engines for live domain blueprints, topic weightages, and sub-topics. | web_crawler_agent.py | Research Metadata |
+| **PDF Reader & OCR Agent** | Parses custom uploaded PDF syllabi/notes, extracts textual tokens, and identifies topic hierarchies. | pdf_reader_agent.py | Topic List & Clean Text |
+| **Question Generator Agent** | Crafts calibrated MCQs, MSQs, NATs with step-by-step derivations and LaTeX formulas. | question_generator_agent.py | Question Array + Explanations |
+| **Concept & Learning Agent** | Synthesizes 5 progressive worked examples per topic (Level 1 Foundational to Level 5 Master). | concept_learning_agent.py | Study Guides & Formulas |
+| **Anti-Cheat Proctor Guard** | Evaluates client browser telemetry (blur events, tab switches, copy-paste) into a 0-100% Honor Score. | anti_cheat_agent.py | Telemetry Audit Score |
+| **Diagram Synthesis Agent** | Generates dynamic SVG vector graphics for technical problem figures, circuits, and flowcharts. | diagram_agent.py | Inline SVG Strings |
+| **Self-Learning Knowledge Model** | Indexes exam packages into a persistent JSON knowledge store, learning topics and patterns over time. | knowledge_model.py | Knowledge Graph & Stats |
 
 ---
 
